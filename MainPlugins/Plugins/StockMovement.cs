@@ -26,7 +26,7 @@ namespace PlayGroundPlugins.Plugins
             _Tracing.Trace("Starting StockMovements plugin...");
 
             // Get the Movement Type and Quantity fields from the target entity
-            var movementTypeOption = TargetEntity.GetAttributeValue<OptionSetValue>("initiumc_movementtype");
+            var movementTypeOption = XrmExtensions.GetOptionSetValue(TargetEntity, "initiumc_movementtype");
             if (movementTypeOption == null)
             {
                 // Throw an exception if the Movement Type is missing
@@ -65,6 +65,14 @@ namespace PlayGroundPlugins.Plugins
 
             _Tracing.Trace("Product entity retrieved successfully.");
 
+            #region another approach is to use the GetAliasedValue Method
+
+            int productInStock = XrmExtensions.GetAliasedValue<int>(TargetEntity, "initiumc_product_ss.initiumc_currentstock");
+
+            _Tracing.Trace("Product in stock is " + productInStock);
+
+            #endregion
+
             // Attempt to retrieve the Product entity
             if (product == null)
             {
@@ -72,7 +80,7 @@ namespace PlayGroundPlugins.Plugins
                 throw new InvalidPluginExecutionException("Failed to retrieve Product entity. Product may not exist.");
             }
 
-            // Check for the initiumc_currentstock field, defaulting to 0 if not present
+            // Check for the initiumc_currentstock field in initiumc_product_ss, defaulting to 0 if not present
             int currentStock = product.Contains("initiumc_currentstock") && product["initiumc_currentstock"] != null
                 ? product.GetAttributeValue<int>("initiumc_currentstock") : 0;
             _Tracing.Trace("Current Stock retrieved: " + currentStock);
@@ -81,7 +89,7 @@ namespace PlayGroundPlugins.Plugins
             if (MovementTypes.In == movementType) // "In" movement
             {
                 // Update the stock level by adding the movement quantity
-                int newStock = currentStock + stockMovQuantity;
+                int newStock = productInStock + stockMovQuantity;
                 product["initiumc_currentstock"] = newStock;
                 _Tracing.Trace("Updated stock for 'In' movement: " + newStock);
                 _Service.Update(product);
@@ -89,7 +97,7 @@ namespace PlayGroundPlugins.Plugins
             else if (MovementTypes.Out == movementType) // "Out" movement
             {
                 // Check if the current stock level is sufficient for the movement
-                if (currentStock < stockMovQuantity)
+                if (productInStock < stockMovQuantity)
                 {
                     // Throw an exception if the stock level is insufficient
                     throw new InvalidPluginExecutionException("Insufficient stock available. This movement would result in a negative stock level.");
