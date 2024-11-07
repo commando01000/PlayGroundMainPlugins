@@ -65,14 +65,6 @@ namespace PlayGroundPlugins.Plugins
 
             _Tracing.Trace("Product entity retrieved successfully.");
 
-            #region another approach is to use the GetAliasedValue Method
-
-            int productInStock = XrmExtensions.GetAliasedValue<int>(TargetEntity, "initiumc_product_ss.initiumc_currentstock");
-
-            _Tracing.Trace("Product in stock is " + productInStock);
-
-            #endregion
-
             // Attempt to retrieve the Product entity
             if (product == null)
             {
@@ -89,7 +81,7 @@ namespace PlayGroundPlugins.Plugins
             if (MovementTypes.In == movementType) // "In" movement
             {
                 // Update the stock level by adding the movement quantity
-                int newStock = productInStock + stockMovQuantity;
+                int newStock = currentStock + stockMovQuantity;
                 product["initiumc_currentstock"] = newStock;
                 _Tracing.Trace("Updated stock for 'In' movement: " + newStock);
                 _Service.Update(product);
@@ -97,7 +89,7 @@ namespace PlayGroundPlugins.Plugins
             else if (MovementTypes.Out == movementType) // "Out" movement
             {
                 // Check if the current stock level is sufficient for the movement
-                if (productInStock < stockMovQuantity)
+                if (currentStock < stockMovQuantity)
                 {
                     // Throw an exception if the stock level is insufficient
                     throw new InvalidPluginExecutionException("Insufficient stock available. This movement would result in a negative stock level.");
