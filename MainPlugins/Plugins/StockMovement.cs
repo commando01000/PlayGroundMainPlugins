@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using PlayGroundPlugins.Helpers;
 using System;
@@ -101,6 +102,74 @@ namespace PlayGroundPlugins.Plugins
                 _Tracing.Trace("Updated stock for 'Out' movement: " + newStock);
                 _Service.Update(product);
             }
+
+            #region with transaction (commented)
+            // Handle the stock movement based on the movement type
+            //if (MovementTypes.In == movementType) // "In" movement
+            //{
+            //    // Update the stock level by adding the movement quantity
+            //    int newStock = currentStock + stockMovQuantity;
+            //    product["initiumc_currentstock"] = newStock;
+
+            //    var updatedRequest = new UpdateRequest();
+            //    updatedRequest.Target = product;
+
+            //    // Create an ExecuteTransactionRequest to bundle multiple requests
+            //    var transactionRequest = new ExecuteTransactionRequest
+            //    {
+            //        Requests = new OrganizationRequestCollection { updatedRequest },
+            //        ReturnResponses = true
+            //    };
+
+            //    try
+            //    {
+            //        // Execute the transaction
+            //        var response = (ExecuteTransactionResponse)_Service.Execute(transactionRequest);
+            //        _Tracing.Trace("Transaction executed successfully with new stock level: " + newStock);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _Tracing.Trace("Transaction failed: " + ex.Message);
+            //        throw new InvalidPluginExecutionException("An error occurred while processing the stock movement transaction: " + ex.Message);
+            //    }
+            //}
+            //else if (MovementTypes.Out == movementType) // "Out" movement
+            //{
+            //    // Check if the current stock level is sufficient for the movement
+            //    if (currentStock < stockMovQuantity)
+            //    {
+            //        // Throw an exception if the stock level is insufficient
+            //        throw new InvalidPluginExecutionException("Insufficient stock available. This movement would result in a negative stock level.");
+            //    }
+
+            //    // Update the stock level by subtracting the movement quantity
+            //    int newStock = currentStock - stockMovQuantity;
+            //    product["initiumc_currentstock"] = newStock;
+
+            //    var updatedRequest = new UpdateRequest();
+            //    updatedRequest.Target = product;
+
+            //    // Create an ExecuteTransactionRequest to bundle multiple requests
+            //    var transactionRequest = new ExecuteTransactionRequest
+            //    {
+            //        Requests = new OrganizationRequestCollection { updatedRequest },
+            //        ReturnResponses = true
+            //    };
+
+            //    try
+            //    {
+            //        // Execute the transaction
+            //        var response = (ExecuteTransactionResponse)_Service.Execute(transactionRequest);
+            //        _Tracing.Trace("Transaction executed successfully with new stock level: " + newStock);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _Tracing.Trace("Transaction failed: " + ex.Message);
+            //        throw new InvalidPluginExecutionException("An error occurred while processing the stock movement transaction: " + ex.Message);
+            //    }
+            //    _Tracing.Trace("Updated stock for 'Out' movement: " + newStock);
+            //}
+            #endregion
         }
     }
 }
